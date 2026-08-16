@@ -1,0 +1,123 @@
+@import "tailwindcss";
+
+:root {
+  --color-void: #030503;
+  --color-void-deep: #000100;
+  --color-fg: #dff7e8;
+  --color-fg-dim: #7fa895;
+  --color-emerald: #34ffa0;
+  --color-emerald-dim: #1c8f5c;
+  --color-cyan: #4dfaff;
+  --color-amber: #ffb545;
+  --color-danger: #ff4d6a;
+  --font-heading: var(--font-geist-sans);
+  --font-mono-term: var(--font-terminal-mono);
+}
+
+@theme inline {
+  --color-void: var(--color-void);
+  --color-void-deep: var(--color-void-deep);
+  --color-fg: var(--color-fg);
+  --color-fg-dim: var(--color-fg-dim);
+  --color-emerald: var(--color-emerald);
+  --color-emerald-dim: var(--color-emerald-dim);
+  --color-cyan: var(--color-cyan);
+  --color-amber: var(--color-amber);
+  --color-danger: var(--color-danger);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-terminal-mono);
+}
+
+body {
+  background: var(--color-void);
+  color: var(--color-fg);
+  font-family: var(--font-heading), Arial, Helvetica, sans-serif;
+}
+
+::selection {
+  background: var(--color-emerald);
+  color: #00150a;
+}
+
+/* Ambient CRT scanline sweep, layered over the full hero for atmosphere */
+.scanline-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.035) 0px,
+    rgba(255, 255, 255, 0.035) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  mix-blend-mode: overlay;
+  opacity: 0.5;
+}
+
+.grain-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  background-size: 180px 180px;
+}
+
+.vignette-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 40%,
+    rgba(0, 2, 1, 0.55) 100%
+  );
+}
+
+.hud-panel {
+  border: 1px solid rgba(52, 255, 160, 0.22);
+  background: linear-gradient(
+    180deg,
+    rgba(6, 14, 10, 0.72) 0%,
+    rgba(3, 8, 6, 0.65) 100%
+  );
+  backdrop-filter: blur(6px);
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.3) inset,
+    0 8px 24px -12px rgba(0, 0, 0, 0.8);
+}
+
+.text-glow-emerald {
+  text-shadow: 0 0 12px rgba(52, 255, 160, 0.45);
+}
+
+@keyframes hud-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-hud-in {
+  animation: hud-fade-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+.animate-pulse-dot {
+  animation: pulse-dot 1.8s ease-in-out infinite;
+}
