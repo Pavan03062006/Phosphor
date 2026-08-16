@@ -75,4 +75,15 @@ pnpm dev      # start dev server
 pnpm build    # production build
 pnpm start    # run the production build
 pnpm lint     # eslint
+pnpm cf:build # build the Cloudflare worker bundle with OpenNext
+pnpm cf:preview # preview the Cloudflare build locally with Wrangler
+pnpm cf:deploy # build and deploy to Cloudflare
 ```
+
+## Cloudflare deployment
+
+This app is configured for `@opennextjs/cloudflare`, which targets Cloudflare Workers for full Next.js support.
+
+- Use `pnpm run cf:build` as the CI build command if you connect the repo in Cloudflare.
+- If you want the full app, deploy it as a Worker-backed project, not a static Pages export.
+- Cloudflare Pages is only the right target if you first refactor the app into a purely static export. In its current form, the app uses server features like `headers()` in [`src/app/layout.tsx`](./src/app/layout.tsx) and the server route [`src/app/api/analyze-transaction/route.ts`](./src/app/api/analyze-transaction/route.ts).
