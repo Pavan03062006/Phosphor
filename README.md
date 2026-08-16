@@ -1,36 +1,78 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# phosphor
 
-## Getting Started
+An on-chain cyber forensics toolkit for Monad testnet threat researchers. Real-time mempool ingestion, contract event tracking, and local exploit-sandbox simulation, wrapped in an operator-console UI with an AI-assisted transaction analysis panel.
 
-First, run the development server:
+This is a testnet demo interface — not audited, not for production incident response.
+
+## Features
+
+- **Cinematic 3D hero** — a vintage CRT monitor (`react-three-fiber` + custom shader) boots from darkness into a live procedural terminal feed, with scroll/pointer-driven camera parallax.
+- **Wallet connect** — MetaMask-first via `wagmi` + `viem`, with Coinbase Wallet and optional WalletConnect. Prompts to switch networks if the wallet isn't on Monad Testnet.
+- **Operator toolkit** (`/toolkit`, wallet-gated):
+  - **Mempool Stream** — live-updating table of pending transactions.
+  - **Contract Events** — live-updating table of contract events, flagged entries highlighted.
+  - **Exploit Sandbox** — pick a target contract and an exploit pattern, run a simulated attack, get a step-by-step log and verdict.
+- **AI transaction analysis** — click **Analyze** on any mempool row to get an AI-generated summary, risk score, a sender → contract → receiver flow map, and scored risk factors (via OpenRouter).
+
+All on-chain data (transactions, contract events, network stats) is procedurally generated for demo purposes — there's no live Monad indexer wired up yet. Wallet connection and chain switching are real.
+
+## Tech stack
+
+- [Next.js 16](https://nextjs.org) (App Router, Turbopack) + React 19 + TypeScript
+- [Tailwind CSS v4](https://tailwindcss.com)
+- [`@react-three/fiber`](https://docs.pmnd.rs/react-three-fiber) / `drei` / `postprocessing` for the 3D hero
+- [`wagmi`](https://wagmi.sh) v3 + [`viem`](https://viem.sh) + TanStack Query for wallet connection
+- [OpenRouter](https://openrouter.ai) for AI transaction analysis
+
+## Getting started
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+pnpm install
+cp .env.local.example .env.local   # then fill in OPENROUTER_API_KEY
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000). Connect a wallet and go to `/toolkit` to try the dashboard.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Environment variables
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Copy `.env.local.example` to `.env.local` and fill in:
 
-## Learn More
+| Variable | Required | Purpose |
+|---|---|---|
+| `OPENROUTER_API_KEY` | Yes, for AI analysis | Server-only key for the `/api/analyze-transaction` route. Get one at [openrouter.ai/keys](https://openrouter.ai/keys). Without it, the toolkit works fine — the Analyze panel just shows an error. |
+| `OPENROUTER_MODEL` | No | Overrides the model used for analysis. Defaults to `openai/gpt-4o-mini`. |
+| `NEXT_PUBLIC_WC_PROJECT_ID` | No | Enables the WalletConnect connector (mobile wallets via QR). Free project ID at [dashboard.reown.com](https://dashboard.reown.com). Injected wallets and Coinbase Wallet work without it. |
+| `NEXT_PUBLIC_MONAD_TESTNET_RPC` | No | Not wired up by default (public RPC is used). See the comment in `src/lib/wagmi.ts` for the one-line change to point at a dedicated RPC once you hit rate limits. |
 
-To learn more about Next.js, take a look at the following resources:
+`OPENROUTER_API_KEY` is read server-side only (`src/app/api/analyze-transaction/route.ts`) and never sent to the browser.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Project structure
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+src/
+  app/
+    page.tsx              homepage (hero + product sections)
+    toolkit/page.tsx       operator dashboard (wallet-gated)
+    api/analyze-transaction/route.ts   OpenRouter call, server-only
+    providers.tsx          WagmiProvider + QueryClientProvider
+  components/
+    hero/                  3D CRT hero, boot sequence, camera rig, terminal feed
+    home/                  homepage sections below the hero
+    layout/                Navbar, Footer, video background
+    wallet/                Connect wallet button (wagmi-backed)
+    toolkit/               Mempool/contract-event tables, exploit sandbox, AI analysis panel
+  lib/
+    wagmi.ts               chains, connectors, transports
+    format.ts               locale-pinned number formatting (avoids SSR/client hydration mismatches)
+    monad.ts                address truncation helper
+```
 
-## Deploy on Vercel
+## Scripts
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+pnpm dev      # start dev server
+pnpm build    # production build
+pnpm start    # run the production build
+pnpm lint     # eslint
+```
